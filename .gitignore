@@ -1,0 +1,19 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+/dist-dev
+
+# The template's build output, to avoid committing it by accident
+/template/dist
+
+# Log files
+*.log
+
+# Editor directories
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
