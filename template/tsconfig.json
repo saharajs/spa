@@ -5,6 +5,7 @@
     "outDir": "dist",
     "module": "ESNext",
     "target": "ESNext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

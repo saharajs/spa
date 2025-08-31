@@ -31,7 +31,7 @@ The recommended way to start a new project is by using `npx`, which ensures you 
 Run the following command in your terminal:
 
 ```bash
-npx @saharajs/spa create my-app
+npx @saharajs/spa@latest create my-app
 cd my-app
 npm install
 npm run dev
