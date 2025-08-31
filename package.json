@@ -24,8 +24,10 @@
     "sahara-spa": "./dist/bin/cli.js"
   },
   "files": [
-    "dist",
-    "template"
+    "dist/",
+    "template/",
+    "LICENSE",
+    "README.md"
   ],
   "exports": {
     ".": {
