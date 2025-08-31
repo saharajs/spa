@@ -12,7 +12,7 @@ const blue = (str: string) => `\x1b[34m${str}\x1b[0m`;
 function main() {
   // --- Lecture du package.json du framework ---
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const frameworkPkgPath = path.resolve(__dirname, "..", "..", "package.json");
+  const frameworkPkgPath = path.resolve(__dirname, "../../package.json");
   const frameworkPkg = JSON.parse(fs.readFileSync(frameworkPkgPath, "utf-8"));
 
   // --- Logique du CLI ---
@@ -38,7 +38,7 @@ function main() {
 
   const projectDir = path.resolve(process.cwd(), projectName);
   // Go up two levels from /dist/bin to the package root
-  const templateDir = path.resolve(__dirname, "..", "..", "template");
+  const templateDir = path.resolve(__dirname, "../../template");
 
   // Vérification de l'existence du répertoire (tirée de votre exemple)
   if (fs.existsSync(projectDir) && fs.readdirSync(projectDir).length > 0) {
@@ -72,12 +72,14 @@ function main() {
       packageJson.devDependencies &&
       packageJson.devDependencies["@saharajs/spa"]
     ) {
-      packageJson.devDependencies["@saharajs/spa"] = `^${frameworkPkg.version}`;
+      packageJson.devDependencies[
+        frameworkPkg.name
+      ] = `^${frameworkPkg.version}`;
     } else if (
       packageJson.dependencies &&
       packageJson.dependencies["@saharajs/spa"]
     ) {
-      packageJson.dependencies["@saharajs/spa"] = `^${frameworkPkg.version}`;
+      packageJson.dependencies[frameworkPkg.name] = `^${frameworkPkg.version}`;
     }
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
