@@ -6,6 +6,10 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Read the framework's version to inject it into the new project's package.json
+const frameworkPkgPath = path.resolve(__dirname, "..", "..", "package.json");
+const frameworkPkg = JSON.parse(await fs.readFile(frameworkPkgPath, "utf-8"));
+
 async function main() {
   const args = process.argv.slice(2);
   const command = args[0];
@@ -17,7 +21,8 @@ async function main() {
   }
 
   const projectDir = path.resolve(process.cwd(), projectName);
-  const templateDir = path.resolve(__dirname, "..", "template");
+  // Go up two levels from /dist/bin to the package root
+  const templateDir = path.resolve(__dirname, "..", "..", "template");
 
   try {
     // Check if directory already exists
@@ -37,6 +42,18 @@ async function main() {
   const packageJsonPath = path.join(projectDir, "package.json");
   const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
   packageJson.name = projectName;
+  // Set the correct framework version in the new project's dependencies
+  if (
+    packageJson.devDependencies &&
+    packageJson.devDependencies["@saharajs/spa"]
+  ) {
+    packageJson.devDependencies["@saharajs/spa"] = `^${frameworkPkg.version}`;
+  } else if (
+    packageJson.dependencies &&
+    packageJson.dependencies["@saharajs/spa"]
+  ) {
+    packageJson.dependencies["@saharajs/spa"] = `^${frameworkPkg.version}`;
+  }
   await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
   // Create tsconfig.json programmatically to avoid IDE confusion in the monorepo.
