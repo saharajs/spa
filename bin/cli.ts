@@ -1,22 +1,38 @@
 #!/usr/bin/env node
 
-import * as fs from "fs/promises";
+import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// --- Fonctions utilitaires pour les couleurs (tirées de votre exemple) ---
+const red = (str: string) => `\x1b[31m${str}\x1b[0m`;
+const green = (str: string) => `\x1b[32m${str}\x1b[0m`;
+const blue = (str: string) => `\x1b[34m${str}\x1b[0m`;
 
-// Read the framework's version to inject it into the new project's package.json
-const frameworkPkgPath = path.resolve(__dirname, "..", "..", "package.json");
-const frameworkPkg = JSON.parse(await fs.readFile(frameworkPkgPath, "utf-8"));
+function main() {
+  // --- Lecture du package.json du framework ---
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const frameworkPkgPath = path.resolve(__dirname, "..", "..", "package.json");
+  const frameworkPkg = JSON.parse(fs.readFileSync(frameworkPkgPath, "utf-8"));
 
-async function main() {
+  // --- Logique du CLI ---
   const args = process.argv.slice(2);
   const command = args[0];
   const projectName = args[1];
 
   if (command !== "create" || !projectName) {
-    console.error("Usage: npx @saharajs/spa create <project-name>");
+    console.error(`Usage: ${red("npx @saharajs/spa create <project-name>")}`);
+    process.exit(1);
+  }
+
+  // Validation du nom du projet (tirée de votre exemple)
+  const validationRegExp =
+    /^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+  if (!validationRegExp.test(projectName)) {
+    console.error(`Error: "${projectName}" is not a valid project name.`);
+    console.error(
+      "Use lowercase letters, numbers, dashes (-), or underscores (_)."
+    );
     process.exit(1);
   }
 
@@ -24,40 +40,49 @@ async function main() {
   // Go up two levels from /dist/bin to the package root
   const templateDir = path.resolve(__dirname, "..", "..", "template");
 
-  try {
-    // Check if directory already exists
-    await fs.access(projectDir);
-    console.error(`❌ Directory '${projectName}' already exists.`);
+  // Vérification de l'existence du répertoire (tirée de votre exemple)
+  if (fs.existsSync(projectDir) && fs.readdirSync(projectDir).length > 0) {
+    console.error(
+      red(`Error: Directory "${projectName}" already exists and is not empty.`)
+    );
     process.exit(1);
-  } catch (e) {
-    // Directory does not exist, which is what we want.
   }
 
-  console.log(`\nCreating a new Sahara SPA app in ${projectDir}\n`);
+  try {
+    console.log(`\nCreating a new Sahara SPA app in ${blue(projectDir)}...\n`);
 
-  // Copy template files
-  await fs.cp(templateDir, projectDir, { recursive: true });
+    // Copie des fichiers template (synchrone pour plus de fiabilité)
+    fs.cpSync(templateDir, projectDir, { recursive: true });
 
-  // Update package.json with the new project name
-  const packageJsonPath = path.join(projectDir, "package.json");
-  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
-  packageJson.name = projectName;
-  // Set the correct framework version in the new project's dependencies
-  if (
-    packageJson.devDependencies &&
-    packageJson.devDependencies["@saharajs/spa"]
-  ) {
-    packageJson.devDependencies["@saharajs/spa"] = `^${frameworkPkg.version}`;
-  } else if (
-    packageJson.dependencies &&
-    packageJson.dependencies["@saharajs/spa"]
-  ) {
-    packageJson.dependencies["@saharajs/spa"] = `^${frameworkPkg.version}`;
-  }
-  await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    // --- Tâches post-création ---
 
-  // Create tsconfig.json programmatically to avoid IDE confusion in the monorepo.
-  const tsconfigContent = `{
+    // Renommage de gitignore (bonne pratique)
+    const gitignorePath = path.join(projectDir, "gitignore");
+    if (fs.existsSync(gitignorePath)) {
+      fs.renameSync(gitignorePath, path.join(projectDir, ".gitignore"));
+    }
+
+    // Mise à jour du package.json
+    const packageJsonPath = path.join(projectDir, "package.json");
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+
+    packageJson.name = projectName;
+    // Injection de la bonne version du framework
+    if (
+      packageJson.devDependencies &&
+      packageJson.devDependencies["@saharajs/spa"]
+    ) {
+      packageJson.devDependencies["@saharajs/spa"] = `^${frameworkPkg.version}`;
+    } else if (
+      packageJson.dependencies &&
+      packageJson.dependencies["@saharajs/spa"]
+    ) {
+      packageJson.dependencies["@saharajs/spa"] = `^${frameworkPkg.version}`;
+    }
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+
+    // Création programmatique du tsconfig.json (votre méthode, qui est excellente)
+    const tsconfigContent = `{
   "include": ["src/**/*.ts", "vite.config.ts"],
   "exclude": ["node_modules"],
   "compilerOptions": {
@@ -71,17 +96,22 @@ async function main() {
   }
 }
 `;
-  const tsconfigPath = path.join(projectDir, "tsconfig.json");
-  await fs.writeFile(tsconfigPath, tsconfigContent);
+    const tsconfigPath = path.join(projectDir, "tsconfig.json");
+    fs.writeFileSync(tsconfigPath, tsconfigContent);
 
-  console.log("✅ Project created successfully!");
-  console.log("\nNext steps:");
-  console.log(`  cd ${projectName}`);
-  console.log("  npm install");
-  console.log("  npm run dev\n");
+    // --- Messages de fin ---
+    console.log(green("✅ Project created successfully!"));
+    console.log("\nNext steps:");
+    console.log(`  cd ${projectName}`);
+    console.log("  npm install");
+    console.log("  npm run dev\n");
+  } catch (error) {
+    console.error(
+      red("\nAn unexpected error occurred while creating the project.")
+    );
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
 }
 
-main().catch((err) => {
-  console.error("An unexpected error occurred:", err);
-  process.exit(1);
-});
+main();
