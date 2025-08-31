@@ -1,15 +1,46 @@
 {
-  "name": "saharajs-spa",
-  "private": true,
+  "name": "@saharajs/spa",
   "version": "1.0.0",
   "type": "module",
+  "description": "A minimal, file-based routing framework for building Single Page Applications (SPAs) with native Web Components.",
+  "author": "Martial Boissonneault",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/saharajs/spa.git"
+  },
+  "keywords": [
+    "spa",
+    "framework",
+    "web-components",
+    "routing",
+    "vanilla-js",
+    "typescript"
+  ],
+  "main": "./dist/src/framework/index.js",
+  "module": "./dist/src/framework/index.js",
+  "types": "./dist/src/framework/index.d.ts",
+  "bin": {
+    "sahara-spa": "./dist/bin/cli.js"
+  },
+  "files": [
+    "dist",
+    "template"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/src/framework/index.js",
+      "types": "./dist/src/framework/index.d.ts"
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build:dev": "vite build",
+    "build": "tsc --project tsconfig.build.json",
+    "prepublishOnly": "npm run build",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "license": "ISC",
   "devDependencies": {
     "@types/node": "^24.3.0",
     "typescript": "^5.9.2",
