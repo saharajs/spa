@@ -12,7 +12,7 @@ const blue = (str: string) => `\x1b[34m${str}\x1b[0m`;
 function main() {
   // --- Lecture du package.json du framework ---
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const frameworkPkgPath = path.resolve(__dirname, "../../package.json");
+  const frameworkPkgPath = path.resolve(__dirname, "..", "..", "package.json");
   const frameworkPkg = JSON.parse(fs.readFileSync(frameworkPkgPath, "utf-8"));
 
   // --- Logique du CLI ---
@@ -49,7 +49,7 @@ function main() {
   }
 
   try {
-    console.log(`\nCreating a new Sahara SPA app in ${blue(projectDir)}...\n`);
+    console.log(`\nCreating a new Sahara SPA app in ${blue(projectDir)}...`);
 
     // Copie des fichiers template (synchrone pour plus de fiabilité)
     fs.cpSync(templateDir, projectDir, { recursive: true });
@@ -102,7 +102,7 @@ function main() {
     fs.writeFileSync(tsconfigPath, tsconfigContent);
 
     // --- Messages de fin ---
-    console.log(green("✅ Project created successfully!"));
+    console.log(green("\n✅ Project created successfully!"));
     console.log("\nNext steps:");
     console.log(`  cd ${projectName}`);
     console.log("  npm install");
