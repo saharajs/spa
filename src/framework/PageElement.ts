@@ -30,7 +30,14 @@ export abstract class PageElement extends HTMLElement {
    * Listeners are automatically removed when the element is disconnected.
    * @returns this for chaining
    */
-  protected on<K extends keyof HTMLElementEventMap, T extends Element = HTMLElement>(selector: string, eventType: K, handler: (event: HTMLElementEventMap[K]) => void): this {
+  protected on<
+    K extends keyof HTMLElementEventMap,
+    T extends Element = HTMLElement
+  >(
+    selector: string,
+    eventType: K,
+    handler: (event: HTMLElementEventMap[K]) => void
+  ): this {
     const element = this.$<T>(selector);
     const listener = handler as EventListener;
 
@@ -60,12 +67,18 @@ export abstract class PageElement extends HTMLElement {
     const form = this.$<HTMLFormElement>(formSelector);
     const formData = new FormData(form);
     const data: Record<string, any> = {};
+    const processedKeys = new Set<string>();
 
-    // Handle multiple values for the same key (e.g., checkboxes)
-    for (const key of formData.keys()) {
+    formData.forEach((_, key) => {
+      // On ne traite chaque clé qu'une seule fois pour être efficace
+      if (processedKeys.has(key)) {
+        return;
+      }
+
       const values = formData.getAll(key);
       data[key] = values.length > 1 ? values : values[0];
-    }
+      processedKeys.add(key);
+    });
 
     return data;
   }
