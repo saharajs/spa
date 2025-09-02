@@ -1,6 +1,6 @@
 {
   "name": "@saharajs/spa",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "type": "module",
   "description": "A minimal, file-based routing framework for building Single Page Applications (SPAs) with native Web Components.",
   "author": "Martial Boissonneault",
