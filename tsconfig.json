@@ -1,24 +1,21 @@
 {
-  "include": [
-    "src/framework/**/*.ts",
-    "bin/**/*.ts",
-    "vite.config.ts",
-    "template/src/**/*.ts"
-  ],
-  "exclude": ["node_modules", "template/dist"],
   "compilerOptions": {
-    "outDir": "dist",
-    "module": "ESNext",
     "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
     "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@saharajs/spa": ["src/framework/index.ts"],
-      "@saharajs/spa/*": ["src/framework/*"]
-    }
-  }
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src"]
 }

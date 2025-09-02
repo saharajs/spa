@@ -42,6 +42,8 @@ export function startRouter(app: HTMLElement) {
     }
   };
 
+  const modules = import.meta.glob("/routes/**/*.ts");
+
   // --- Core Logic ---
   const loadPage = async () => {
     if (DEBUG) console.log("→ Loading", window.location.pathname);
@@ -49,8 +51,15 @@ export function startRouter(app: HTMLElement) {
 
     try {
       const file = routeToFile(window.location.pathname);
-      const mod = await import(/* @vite-ignore */ file);
-      const PageClass = mod.default as CustomElementConstructor;
+      const moduleLoader = modules[file];
+      if (!moduleLoader) {
+        renderErrorPage(404, `Page not found for path: ${file}`);
+        return;
+      }
+      const mod = (await moduleLoader()) as {
+        default: CustomElementConstructor;
+      };
+      const PageClass = mod.default;
 
       const layouts: CustomElementConstructor[] = [];
       let LayoutCtor = (PageClass as any).layout;
