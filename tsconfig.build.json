@@ -3,6 +3,8 @@
   "include": ["src/framework/**/*.ts", "bin/**/*.ts"],
   "exclude": ["node_modules", "dist", "template"],
   "compilerOptions": {
-    "declaration": true
+    "declaration": true,
+    "noEmit": false,
+    "outDir": "./dist"
   }
 }
